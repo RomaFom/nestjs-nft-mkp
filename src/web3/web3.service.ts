@@ -30,6 +30,10 @@ export class Web3Service {
     // Get the total number of items
     const count = await this.mkp.methods.itemCount().call();
     if (!count) return items;
+    if (!page || !size) {
+      page = 1;
+      size = +count;
+    }
     if (page === 0) page = 1;
 
     // 1,2,3,4,5,6,7,8,9,10
@@ -91,7 +95,7 @@ export class Web3Service {
     }
 
     // In limits of count
-    if (pool < count) {
+    if (pool <= count) {
       start = page * size - (size - 1);
       end = pool;
     }
