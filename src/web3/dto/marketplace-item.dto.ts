@@ -33,6 +33,9 @@ export class MarketplaceItemDto {
   @ApiProperty({ example: 80, description: 'Listing Price in ETH' })
   listingPrice: number;
 
+  @ApiProperty({ example: 81, description: 'Final Price Price in ETH' })
+  finalPrice: number;
+
   @ApiProperty({
     example: '0x938727623...',
     description: 'Seller Address',

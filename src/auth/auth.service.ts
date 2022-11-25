@@ -10,6 +10,7 @@ import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcryptjs';
 import { User } from '../users/users.model';
 import { TokenDto } from './dto/auth.dto';
+import { ResponseUserDto } from '../users/dto/response-user.dto';
 
 @Injectable()
 export class AuthService {
@@ -40,6 +41,10 @@ export class AuthService {
       password: hashPassword,
     });
     return this.generateToken(user);
+  }
+
+  async getUser(id: number): Promise<ResponseUserDto> {
+    return await this.usersService.getUserById(id);
   }
 
   private async generateToken(user: User): Promise<TokenDto> {

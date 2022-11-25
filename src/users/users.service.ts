@@ -23,4 +23,10 @@ export class UsersService {
       include: { all: true },
     });
   }
+
+  async getUserById(id: number): Promise<User> {
+    return await this.userRepository.findByPk(id, {
+      attributes: { exclude: ['password', 'createdAt', 'updatedAt'] },
+    });
+  }
 }

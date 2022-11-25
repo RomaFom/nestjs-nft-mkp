@@ -44,6 +44,19 @@ export class Web3Service {
 
     promises = [];
 
+    for (let i = 1; i <= count; i++) {
+      const item = this.mkp.methods.getFinalPrice(i).call();
+      promises.push(item);
+    }
+
+    const FinalPrices = await Promise.all(promises).then((values) => {
+      return values;
+    });
+
+    promises = [];
+
+    // Get final price for each item
+
     MkpItems.forEach((item) => {
       const nft = this.nft.methods.tokenURI(item.tokenId).call();
       promises.push(nft);
@@ -70,7 +83,11 @@ export class Web3Service {
       NftsMetaData.map((item) => item.json()),
     ).then((values) => values);
 
+    // console.log(MkpItems[0]);
+    // const finalPrice = await this.mkp.methods.getFinalPrice(1).call();
+    // console.log(finalPrice);
     MkpItems.forEach((item, index) => {
+      if (item.isSold) return;
       const newItem = new MarketplaceItemDto();
       newItem.itemId = item.itemId;
       newItem.tokenId = item.tokenId;
@@ -78,6 +95,9 @@ export class Web3Service {
       newItem.price = +ethers.utils.formatEther(item.price.toString());
       newItem.listingPrice = +ethers.utils.formatEther(
         item.listingPrice.toString(),
+      );
+      newItem.finalPrice = +ethers.utils.formatEther(
+        FinalPrices[index].toString(),
       );
       newItem.seller = item.seller;
       newItem.isSold = item.isSold;
