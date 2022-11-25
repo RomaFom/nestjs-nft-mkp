@@ -25,69 +25,30 @@ export class Web3Service {
     );
   }
 
-  async getMkpItems() {
+  async getMkpItems(page: number, size: number) {
     const items: MarketplaceItemDto[] = [];
     // Get the total number of items
     const count = await this.mkp.methods.itemCount().call();
     if (!count) return items;
+    if (page === 0) page = 1;
 
-    // Array of promises
-    let promises = [];
-    for (let i = 1; i <= count; i++) {
-      const item = this.mkp.methods.items(i).call();
-      promises.push(item);
-    }
+    // 1,2,3,4,5,6,7,8,9,10
 
-    const MkpItems = await Promise.all(promises).then((values) => {
-      return values;
-    });
+    const { start, end } = this.getPaginationLimits(page, size, count);
 
-    promises = [];
+    // const end = +start + +size <= count ? +start + +size : count;
 
-    for (let i = 1; i <= count; i++) {
-      const item = this.mkp.methods.getFinalPrice(i).call();
-      promises.push(item);
-    }
+    const MkpItems = await this.getItemsFromSC(start, end);
+    const FinalPrices = await this.getItemsPriceFromSC(start, end);
+    const NFTItems = await this.getNFTs(MkpItems);
 
-    const FinalPrices = await Promise.all(promises).then((values) => {
-      return values;
-    });
-
-    promises = [];
-
-    // Get final price for each item
-
-    MkpItems.forEach((item) => {
-      const nft = this.nft.methods.tokenURI(item.tokenId).call();
-      promises.push(nft);
-    });
-
-    const NFTItems = await Promise.all(promises).then((values) => {
-      return values;
-    });
-
-    promises = [];
-
-    NFTItems.forEach((item) => {
-      const meta = fetch(item);
-      promises.push(meta);
-    });
-
-    let NftsMetaData: any[] = await Promise.all(promises).then(
-      (values) => values,
-    );
-
-    promises = [];
-
+    let NftsMetaData: any[] = await this.getNftMetadata(NFTItems);
     NftsMetaData = await Promise.all(
       NftsMetaData.map((item) => item.json()),
     ).then((values) => values);
 
-    // console.log(MkpItems[0]);
-    // const finalPrice = await this.mkp.methods.getFinalPrice(1).call();
-    // console.log(finalPrice);
     MkpItems.forEach((item, index) => {
-      if (item.isSold) return;
+      // if (item.isSold) return;
       const newItem = new MarketplaceItemDto();
       newItem.itemId = item.itemId;
       newItem.tokenId = item.tokenId;
@@ -106,5 +67,83 @@ export class Web3Service {
     });
 
     return items;
+  }
+
+  private getPaginationLimits = (
+    page: number,
+    size: number,
+    count: number,
+  ): { start: number; end: number } => {
+    let start;
+    let end;
+    const pool = page * size;
+    // if called page 1 and total size bigger than count
+    if (pool > count && page === 1) {
+      console.log('pool > count && page === 1');
+      start = 1;
+      end = count;
+    }
+
+    // if called page>1 and total size bigger than count
+    if (pool >= count && page > 1) {
+      start = page * size - (size - 1);
+      end = count;
+    }
+
+    // In limits of count
+    if (pool < count) {
+      start = page * size - (size - 1);
+      end = pool;
+    }
+
+    return { start, end };
+  };
+
+  private async getItemsFromSC(
+    start: number,
+    end: number,
+    // totalCount: number,
+  ): Promise<any> {
+    const promises = [];
+    for (let i = start; i <= end; i++) {
+      const item = this.mkp.methods.items(i).call();
+      promises.push(item);
+    }
+    return await this.handlePromiseAll(promises);
+  }
+
+  private async getItemsPriceFromSC(
+    start: number,
+    end: number,
+    // totalCount: number,
+  ): Promise<any> {
+    const promises = [];
+    for (let i = start; i <= end; i++) {
+      const item = this.mkp.methods.getFinalPrice(i).call();
+      promises.push(item);
+    }
+    return await this.handlePromiseAll(promises);
+  }
+
+  private async getNFTs(MkpItems: any[]) {
+    const promises = [];
+    MkpItems.forEach((item) => {
+      const nft = this.nft.methods.tokenURI(item.tokenId).call();
+      promises.push(nft);
+    });
+    return await this.handlePromiseAll(promises);
+  }
+
+  private async getNftMetadata(NFTItems: any[]) {
+    const promises = [];
+    NFTItems.forEach((item) => {
+      const meta = fetch(item);
+      promises.push(meta);
+    });
+    return await this.handlePromiseAll(promises);
+  }
+
+  private async handlePromiseAll(promises: Array<Promise<any>>) {
+    return await Promise.all(promises).then((values) => values);
   }
 }

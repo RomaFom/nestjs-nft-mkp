@@ -1,4 +1,4 @@
-import { Controller, Get } from '@nestjs/common';
+import { Controller, Get, Query } from '@nestjs/common';
 import { Web3Service } from './web3.service';
 import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { MarketplaceItemDto } from './dto/marketplace-item.dto';
@@ -11,7 +11,8 @@ export class Web3Controller {
   @Get('items')
   @ApiOperation({ summary: 'Get Marketplace items feed' })
   @ApiResponse({ status: 200, type: [MarketplaceItemDto] })
-  getItems() {
-    return this.web3Service.getMkpItems();
+  async getItems(@Query() query) {
+    const { page, size } = query;
+    return this.web3Service.getMkpItems(+page, +size);
   }
 }
