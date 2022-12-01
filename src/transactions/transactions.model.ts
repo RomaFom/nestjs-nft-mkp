@@ -62,4 +62,24 @@ export class Transaction extends Model<Transaction, TxCreationAttrs> {
     allowNull: false,
   })
   item_id: number;
+
+  @ApiProperty({
+    example: '2022-11-29 11:08:08.864762',
+    description: 'Created At',
+  })
+  @Column({
+    type: DataType.DATE,
+    unique: false,
+    allowNull: false,
+    defaultValue: DataType.NOW,
+  })
+  created_at: number;
+
+  @ApiProperty({ example: 1, description: 'NFT ID' })
+  @Column({
+    type: DataType.INTEGER,
+    unique: false,
+    allowNull: false,
+  })
+  nft_id: number;
 }

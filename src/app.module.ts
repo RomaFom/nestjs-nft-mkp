@@ -9,6 +9,12 @@ import { TransactionsModule } from './transactions/transactions.module';
 import { Transaction } from './transactions/transactions.model';
 import { Web3Module as NestWeb3Module } from 'nest-web3';
 import { Web3Module } from './web3/web3.module';
+import { ScheduleModule } from '@nestjs/schedule';
+import { TaskModule } from './task/task.module';
+import { NftsModule } from './nfts/nfts.module';
+import { ItemsModule } from './items/items.module';
+import { Nft } from './nfts/nfts.model';
+import { Item } from './items/items.model';
 @Module({
   controllers: [],
   providers: [],
@@ -23,17 +29,21 @@ import { Web3Module } from './web3/web3.module';
       username: process.env.PG_USER,
       password: process.env.PG_PASSWORD,
       database: process.env.PG_DATABASE,
-      models: [User, Transaction],
+      models: [User, Transaction, Nft, Item],
       autoLoadModels: true,
     }),
     NestWeb3Module.forRoot({
       name: 'eth',
       url: process.env.ETHERS_HOST,
     }),
+    ScheduleModule.forRoot(),
     UsersModule,
     AuthModule,
     TransactionsModule,
     Web3Module,
+    TaskModule,
+    NftsModule,
+    ItemsModule,
   ],
 })
 export class AppModule {}

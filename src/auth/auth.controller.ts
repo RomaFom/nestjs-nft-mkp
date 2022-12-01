@@ -31,6 +31,7 @@ export class AuthController {
   @UseGuards(JwtAuthGuard)
   @ApiResponse({ status: 200, type: ResponseUserDto })
   getUser(@Req() req) {
-    return this.authService.getUser(req.user.id);
+    console.log(req.user.user_id);
+    return this.authService.getUser(req.user.user_id);
   }
 }
