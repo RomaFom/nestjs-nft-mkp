@@ -15,6 +15,7 @@ import { NftsModule } from './nfts/nfts.module';
 import { ItemsModule } from './items/items.module';
 import { Nft } from './nfts/nfts.model';
 import { Item } from './items/items.model';
+
 @Module({
   controllers: [],
   providers: [],

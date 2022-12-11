@@ -1,12 +1,12 @@
-import { Controller, Get } from '@nestjs/common';
+import { Controller, Get, Query } from '@nestjs/common';
 import { ItemsService } from './items.service';
 
-@Controller('items')
+@Controller('marketplace')
 export class ItemsController {
   constructor(private readonly itemsService: ItemsService) {}
 
-  @Get('all')
-  async getAllItems() {
-    return await this.itemsService.getItems();
+  @Get('get-all')
+  async getAllItems(@Query('page') page: number, @Query('size') size: number) {
+    return await this.itemsService.getItems(page, size);
   }
 }

@@ -19,8 +19,14 @@ export class ItemsService {
     });
   }
 
-  async getItems() {
-    return await this.itemRepository.findAll({ include: { model: Nft } });
+  async getItems(page: number, limit: number) {
+    const offset = page * limit;
+    return await this.itemRepository.findAll({
+      include: { model: Nft },
+      offset: offset,
+      limit: limit,
+      order: ['item_id'],
+    });
   }
 
   async createItem(item: ItemCreationAttrs) {
